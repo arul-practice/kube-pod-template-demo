@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db
+data:
+  mysql-database: admin
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+                configMapKeyRef:
+                  name: db
+                  key: mysql-database
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: mysql-root-password
+        image: arulkumar1967/rev_mariadb_gke:latest
+        name: mysql
+        ports:
+        - name: mysqlport
+          containerPort: 3306
+          protocol: TCP
